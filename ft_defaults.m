@@ -395,6 +395,11 @@ if ~isdeployed
     ft_hastoolbox('realtime/online_eeg', 3, 1); % not required
   end
 
+  try
+    % this contains specific code and examples for wxyz toolbox
+    ft_hastoolbox('wxyz', 1, 1);
+  end
+
 end
 
 % the toolboxes added by this function should not be removed by FT_POSTAMBLE_HASTOOLBOX
