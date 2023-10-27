@@ -26,7 +26,7 @@ function filename = dccnpath(filename)
 % then dccnpath will automatically use a temporary directory and try to download the
 % data.
 %
-% See also WHICH, WEBSAVE
+% See also  FT_TEST, WHICH, WEBSAVE
 
 % Copyright (C) 2012-2023, Donders Centre for Cognitive Neuroimaging, Nijmegen, NL
 %
@@ -55,11 +55,11 @@ assert(startsWith(filename, '/home/common/matlab/fieldtrip/data'));
 
 % alternative0 applies inside the DCCN network when using the standard data location
 if ispc
-  alternative0 = strrep(filename,'/home','H:');
-  alternative0 = strrep(alternative0,'/','\');
+  alternative0 = strrep(filename, '/home', 'H:');
+  alternative0 = strrep(alternative0, '/', '\');
 else
-  alternative0 = strrep(filename,'H:','/home');
-  alternative0 = strrep(alternative0,'\','/');
+  alternative0 = strrep(filename, 'H:', '/home');
+  alternative0 = strrep(alternative0, '\', '/');
 end
 
 if exist(alternative0, 'file') || exist(alternative0, 'dir')
@@ -68,23 +68,52 @@ if exist(alternative0, 'file') || exist(alternative0, 'dir')
   return
 end
 
-% alternative1 applies with a local file in the present working directory
+% the simple alternative1 applies with a local file in the present working directory
 % this is often convenient when initially setting up a new test script while the data is not yet uploaded
 [p, f, x] = fileparts(alternative0);
 alternative1 = [f x];
 
-if strcmp(alternative1, 'test')
-  % this should not be used when the filename is only "test", since that is too generic
-  warning('the name "test" is too generic')
-  alternative1 = '';
-elseif strcmp(alternative1, 'ctf')
-  % this should not be used when the filename is only "ctf", since that is too generic
-  warning('the name "ctf" is too generic')
+skip = {
+  % subdirectories like fieldtrip/xxx
+  'bin'
+  'compat'
+  'connectivity'
+  'contrib'
+  'external'
+  'fileio'
+  'forward'
+  'inverse'
+  'plotting'
+  'preproc'
+  'private'
+  'qsub'
+  'realtime'
+  'specest'
+  'src'
+  'statfun'
+  'template'
+  'test'
+  'trialfun'
+  'utilities'
+  % subdirectories like fieldtrip/template/xxx
+  'dewar'
+  'headmodel'
+  'sourcemodel'
+  'anatomy'
+  'electrode'
+  'layout'
+  'atlas'
+  'gradiometer'
+  'neighbours'
+  };
+if any(strcmp(alternative1, skip))
+  % this should not be used for subdirectories underneath fieldtrip
+  warning('the simple alternative1 cannot be used for "%s"', alternative1)
   alternative1 = '';
 end
 
 if exist(alternative1, 'file') || exist(alternative1, 'dir')
-  if ~isempty(x) && ~isequal(x,'.ds')   % if alternative1 is a file
+  if ~isempty(x) && ~isequal(x, '.ds')   % if alternative1 is a file
     filenamepath = which(alternative1); % also output the path that alternative1 is located at
     ft_notice('using present working directory %s', filenamepath);
     filename = filenamepath;
@@ -140,8 +169,8 @@ else
   % if the file doesn't exist or the folder is empty, then download test data
   % see also UNTAR, UNZIP, GUNZIP, which can download on the fly
 
-  if contains(alternative2, 'data/test') || contains(alternative2, 'data\test')
-    error('the test data are private and can not be downloaded')
+  if contains(alternative0, 'data/test') || contains(alternative0, 'data\test')
+    error('the test data are private and can not be downloaded from https://download.fieldtriptoolbox.org')
   end
 
   % public data are downloaded from https://download.fieldtriptoolbox.org
