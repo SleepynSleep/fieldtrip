@@ -98,7 +98,12 @@ end
 
 % plot the geometrical object
 % the plotting style depends on the data content
-figure;
+% figure;
+% everything is added to the current figure
+holdflag = ishold;
+if ~holdflag
+  hold on
+end
 switch dtype
   case 'volume'
     funparam = [];
