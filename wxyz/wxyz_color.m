@@ -1,6 +1,33 @@
 function varargout = wxyz_color(varargin)
 
-wxyzColor = {
+wxyzColor = func_getColor();
+
+%%
+code = 0;
+if nargin == 0 % return all color
+    varargout{1} = wxyzColor;
+elseif nargin == 1
+    if isnumeric(varargin{1}) && numel(varargin{1})==1 && varargin{1} >= 1 && varargin{1} <= length(wxyzColor)
+        varargout{1} = wxyzColor{varargin{1}};
+    else
+        error(['The intput varaiable should be less than ' num2str(length(wxyzColor))]);
+    end
+elseif nargin == 2
+    if isnumeric(varargin{1}) && numel(varargin{1})==1 && isnumeric(varargin{2}) && all(varargin{2}<=size(wxyzColor{varargin{1}},1))
+        varargout{1} = wxyzColor{varargin{1}}(varargin{2}, :);
+    else
+        error('Please check the intput varaiable');
+    end
+else
+    error('The intput varaiable should be given and less than 2.')
+end
+
+end
+
+
+function color = func_getColor()
+
+color = {
     [016 070 128;
     049 124 183;
     109 173 209;
@@ -57,26 +84,16 @@ wxyzColor = {
     182 215 232;
     233 241 244;
     255 255 255]/255; % Color7
+    
+    
+    [184 219 179;
+    114 176 99;
+    113 154 172;
+    226 145 53;
+    148 198 205;
+    74 95 126]/255; % color 8
+    
     };
 
-%%
-code = 0;
-if nargin == 0 % return all color
-    varargout{1} = wxyzColor;
-elseif nargin == 1
-    if isnumeric(varargin{1}) && numel(varargin{1})==1 && varargin{1} >= 1 && varargin{1} <= length(wxyzColor)
-        varargout{1} = wxyzColor{varargin{1}};
-    else
-        error(['The intput varaiable should be less than ' num2str(length(wxyzColor))]);
-    end
-elseif nargin == 2
-    if isnumeric(varargin{1}) && numel(varargin{1})==1 && isnumeric(varargin{2}) && all(varargin{2}<=size(wxyzColor{varargin{1}},1))
-        varargout{1} = wxyzColor{varargin{1}}(varargin{2}, :);
-    else
-        error('Please check the intput varaiable');
-    end
-else
-    error('The intput varaiable should be given and less than 2.')
-end
 
 end
