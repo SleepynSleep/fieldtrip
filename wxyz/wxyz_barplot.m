@@ -70,7 +70,7 @@ for i = 1:size(params.data, 2)
             errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
         else
             if ~isempty(find(params.err(:,i)~=0, 1))
-                errorbar(hbar(i).XEndPoints(params.err(:,i)~=0), dat(params.err(:,i)~=0, i), params.err(params.err(:,i)~=0, i), 'LineStyle', params.errBarStyle, 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
+                errorbar(hbar(i).XEndPoints(params.err(:,i)~=0), data(params.err(:,i)~=0, i), params.err(params.err(:,i)~=0, i), 'LineStyle', params.errBarStyle, 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
             end
         end
     end
