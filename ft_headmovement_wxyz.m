@@ -1,4 +1,7 @@
-function [varargout] = ft_headmovement(cfg)
+function [varargout] = ft_headmovement_wxyz(cfg, HLCdata)
+
+% 20240228 ZY   add: data can be passed by the user, but need cfg.dataset
+% to read CTF.hdr file.    ROW 134-145
 
 % FT_HEADMOVEMENT outputs a raw data structure, or cell-array of data structures
 % reflecting the variability in the subject's head poisition relative to the 
@@ -125,13 +128,22 @@ grad.chanpos = grad_head.chanpos;
 % HLC0021 HLC0022 HLC0023 x, y, z coordinates of lpa-coil in m.
 % HLC0031 HLC0032 HLC0033 x, y, z coordinates of rpa-coil in m.
 
-if ~isfield(cfg, 'trl') || isempty(cfg.trl)
-  cfg.trl = [1 hdr.nTrials.*hdr.nSamples 0];
+% 20240228 ZY  data can be passed by the user
+hasdata = exist('HLCdata', 'var');
+
+if hasdata
+    data = HLCdata;
+else
+    % raw script read HLC-channels
+    if ~isfield(cfg, 'trl') || isempty(cfg.trl)
+        cfg.trl = [1 hdr.nTrials.*hdr.nSamples 0];
+    end
+    tmpcfg              = keepfields(cfg, {'datafile' 'trl'});
+    tmpcfg.channel      = {'HLC0011' 'HLC0012' 'HLC0013' 'HLC0021' 'HLC0022' 'HLC0023' 'HLC0031' 'HLC0032' 'HLC0033'};
+    tmpcfg.continuous   = 'yes';
+    data                = ft_preprocessing(tmpcfg);
 end
-tmpcfg              = keepfields(cfg, {'datafile' 'trl'});
-tmpcfg.channel      = {'HLC0011' 'HLC0012' 'HLC0013' 'HLC0021' 'HLC0022' 'HLC0023' 'HLC0031' 'HLC0032' 'HLC0033'};
-tmpcfg.continuous   = 'yes';
-data                = ft_preprocessing(tmpcfg);
+
 data                = removefields(data, 'elec'); % this slows down a great deal
 % rendering the persistent variable trick useless. We don't need the elec anyway
 
