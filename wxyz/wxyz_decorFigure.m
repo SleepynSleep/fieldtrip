@@ -70,9 +70,21 @@ if ~isempty(findobj(hFig, 'Type', 'Text'))
     set(findobj(hFig, 'Type', 'Text'), 'FontSize', params.FontSize*1);
 end
 
+if ~isempty(findobj(hFig, 'Type', 'ColorBar'))
+    set(findobj(hFig, 'Type', 'ColorBar'), 'FontSize', params.FontSize*0.9);
+    cb = findall(hFig, 'Type', 'Colorbar');
+    for c = 1:numel(cb)
+        set(cb(c).Label, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'cap');
+    end
+end
+
 if ~isempty(findobj(hFig, 'Type', 'tiledlayout'))
     set(findobj(hFig, 'Type', 'tiledlayout').Title, 'FontSize', params.FontSize*params.FontScale,...
         'FontName', params.FontName, 'FontWeight', params.FontWeight);
+end
+if ~isempty(findall(hFig, 'Type', 'textbox')) % Annotation
+    set(findall(hFig, 'Type', 'textbox'), 'FontSize', params.FontSize*params.FontScale,...
+        'FontName', params.FontName, 'FontWeight', params.FontWeight, 'FitBoxToText', true, 'EdgeColor', 'none');
 end
 
 %% Box

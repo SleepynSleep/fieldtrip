@@ -47,6 +47,7 @@ params.BarWidth     = 1;
 params.errBarStyle  = '-';
 params.errBarWidth  = 1;
 params.errBarColor  = 'k';
+params.facealpha    = 1;
 
 for i = 1:2:length(varargin) % parse varargin
     key = varargin{i};
@@ -64,7 +65,7 @@ end
 hbar = bar(params.data, 'BarWidth', params.BarWidth);
 for i = 1:size(params.data, 2)
     hbar(i).FaceColor = params.color(i, :);
-    hbar(i).FaceAlpha = 0.7;
+    hbar(i).FaceAlpha = params.facealpha;
     if ~isempty(params.err)
         if params.show0err
             errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
