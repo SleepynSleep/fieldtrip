@@ -49,12 +49,14 @@ params.errBarWidth  = 1;
 params.errBarColor  = 'k';
 params.facealpha    = 1;
 
-for i = 1:2:length(varargin) % parse varargin
-    key = varargin{i};
-    if isfield(params, key)
-        params.(key) = varargin{i+1};
-    else
-        error(['Unrecognized key: ', key]);
+if ~isempty(varargin)
+    for i = 1:2:length(varargin) % parse varargin
+        key = varargin{i};
+        if isfield(params, key)
+            params.(key) = varargin{i+1};
+        else
+            error(['Unrecognized key: ', key]);
+        end
     end
 end
 

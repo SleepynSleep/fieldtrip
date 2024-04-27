@@ -1,4 +1,4 @@
-function hFig = wxyz_figure(rows, cols, varargin)
+function [hFig, hTiled] = wxyz_figure(rows, cols, varargin)
 % WXYZ_FIGURE This function implements a figure that creates a tiledlayout
 % containing the specified number of grids. 
 % 
@@ -21,4 +21,4 @@ function hFig = wxyz_figure(rows, cols, varargin)
 % Code implementation section
 hFig = figure(varargin{:}); % Creates a figure and passes all parameters except rows and columns.
 set(hFig, 'Color', 'white'); % Change the background to white.
-tiledlayout(hFig, rows, cols, 'TileSpacing', 'compact', 'Padding', 'compact'); % call tiledlayout with parameter rows and cols.
+hTiled = tiledlayout(hFig, rows, cols, 'TileSpacing', 'compact', 'Padding', 'compact'); % call tiledlayout with parameter rows and cols.
