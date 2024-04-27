@@ -37,14 +37,17 @@ if ~holdflag
 end
 
 roi         = ft_getopt(varargin, 'roi',        []);
+plotbrain   = ft_getopt(varargin, 'plotbrain',  true);
+brainalpha  = ft_getopt(varargin, 'brainalpha', 0.3);
 scalp       = ft_getopt(varargin, 'scalp',      []);
+scalpalpha  = ft_getopt(varargin, 'scalpalpha', 0.3);
 cbar        = ft_getopt(varargin, 'colorbar',   false);
-cbartitle   = ft_getopt(varargin, 'colorbarlabel',   []);
-cbartitleori= ft_getopt(varargin, 'colorbarlabelori',90);
-cbarlocation= ft_getopt(varargin, 'colorbarlocation',    'eastoutside');
+cbartitle   = ft_getopt(varargin, 'colorbarlabel',      []);
+cbartitleori= ft_getopt(varargin, 'colorbarlabelori',   90);
+cbarlocation= ft_getopt(varargin, 'colorbarlocation',   'eastoutside');
 cmap        = ft_getopt(varargin, 'colormap',   wxyz_colormap(1));
 viewangle   = ft_getopt(varargin, 'view',       [-90 90]);
-setpivot    = ft_getopt(varargin, 'setpivot',   false);
+setpivot    = ft_getopt(varargin, 'setpivot',   true);
 pivot       = ft_getopt(varargin, 'pivot',      0);
 
 % Check data
@@ -58,7 +61,12 @@ isplotscalp = ~isempty(scalp);
 
 % Do plot
 if ~isplotroi
+    if plotbrain && any(isnan(data))
+        hdlbrain = ft_plot_mesh(sourcemodel);
+        set(hdlbrain, 'FaceColor', [0.8 0.8 0.8], 'FaceAlpha', brainalpha);
+    end
     hdlsurf = ft_plot_mesh(sourcemodel, 'vertexcolor', data);
+    set(gca, 'Clim', [min(data) max(data)]); % Change color limit
 else
     datatmp = nan(numel(sourcemodel.brainstructure), 1);
     if isdataroi
@@ -66,14 +74,16 @@ else
     else
         datatmp(roi) = data(roi);
     end
-    set(gca, 'Clim', [min(datatmp) max(datatmp)]); % Change color limit
-    hdlbrain = ft_plot_mesh(sourcemodel);
-    set(hdlbrain, 'FaceColor', [0.8 0.8 0.8], 'FaceAlpha', 0.3);
+    if plotbrain
+        hdlbrain = ft_plot_mesh(sourcemodel);
+        set(hdlbrain, 'FaceColor', [0.8 0.8 0.8], 'FaceAlpha', brainalpha);
+    end
     hdlsurf = ft_plot_mesh(sourcemodel, 'vertexcolor', datatmp);
+    set(gca, 'Clim', [min(datatmp) max(datatmp)]); % Change color limit
 end
 if isplotscalp
     hdlscalp = ft_plot_mesh(scalp, 'vertexcolor', ones(size(scalp.pos, 1), 1));
-    set(hdlscalp, 'FaceColor', [0.8 0.8 0.8], 'FaceAlpha', 0.3);
+    set(hdlscalp, 'FaceColor', [0.8 0.8 0.8], 'FaceAlpha', scalpalpha);
 end
 if cbar
     cb = colorbar('location', cbarlocation);
