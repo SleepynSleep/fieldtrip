@@ -1,4 +1,4 @@
-classdef joyPlot
+classdef joyPlot_slandarer
     properties
         ax,arginList={'ColorMode','ColorList','Sep','Scatter','MedLine','Quantiles','QtLine'}
         ColorMode='Order'   % 上色模式'Order'/'X'/'GlobalX'/'Kdensity'/'Qt'
@@ -26,7 +26,7 @@ classdef joyPlot
     end
 
     methods
-        function obj=joyPlot(Data,varargin)
+        function obj=joyPlot_slandarer(Data,varargin)
             obj.Data=Data;
             obj.ridgeNum=length(obj.Data);
 

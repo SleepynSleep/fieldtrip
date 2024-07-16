@@ -10,7 +10,7 @@ X7=[normrnd(4,2,1,50),normrnd(4,4,1,50)];
 Data={X1,X2,X3,X4,X5,X6,X7};
 figure;
 % JP=joyPlot(Data,'ColorMode','Order','Scatter','on');
-JP=joyPlot(Data,'ColorMode','Order');
+JP=joyPlot_slandarer(Data,'ColorMode','Order');
 JP=JP.draw();
 
 legendHdl=JP.getLegendHdl();
