@@ -124,6 +124,7 @@ grad.chanpos = grad_head.chanpos;
 % HLC0011 HLC0012 HLC0013 x, y, z coordinates of nasion-coil in m.
 % HLC0021 HLC0022 HLC0023 x, y, z coordinates of lpa-coil in m.
 % HLC0031 HLC0032 HLC0033 x, y, z coordinates of rpa-coil in m.
+
 if ~isfield(cfg, 'trl') || isempty(cfg.trl)
   cfg.trl = [1 hdr.nTrials.*hdr.nSamples 0];
 end

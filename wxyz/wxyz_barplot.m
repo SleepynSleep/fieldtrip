@@ -38,6 +38,7 @@ params.data         = data;
 params.err          = err;
 params.color        = color;
 params.legend       = '';
+params.showlegend   = true;
 params.xtick        = '';
 params.xlabel       = '';
 params.ylabel       = '';
@@ -47,13 +48,16 @@ params.BarWidth     = 1;
 params.errBarStyle  = '-';
 params.errBarWidth  = 1;
 params.errBarColor  = 'k';
+params.facealpha    = 1;
 
-for i = 1:2:length(varargin) % parse varargin
-    key = varargin{i};
-    if isfield(params, key)
-        params.(key) = varargin{i+1};
-    else
-        error(['Unrecognized key: ', key]);
+if ~isempty(varargin)
+    for i = 1:2:length(varargin) % parse varargin
+        key = varargin{i};
+        if isfield(params, key)
+            params.(key) = varargin{i+1};
+        else
+            error(['Unrecognized key: ', key]);
+        end
     end
 end
 
@@ -64,7 +68,7 @@ end
 hbar = bar(params.data, 'BarWidth', params.BarWidth);
 for i = 1:size(params.data, 2)
     hbar(i).FaceColor = params.color(i, :);
-    hbar(i).FaceAlpha = 0.7;
+    hbar(i).FaceAlpha = params.facealpha;
     if ~isempty(params.err)
         if params.show0err
             errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
@@ -75,13 +79,17 @@ for i = 1:size(params.data, 2)
         end
     end
 end
-if isempty(params.legend)
-    params.legend = [];
-    for i = 1:size(params.data, 2)
-        params.legend{i} = strcat('Condition', num2str(i));
+if params.showlegend
+    if isempty(params.legend)
+        params.legend = [];
+        for i = 1:size(params.data, 2)
+            params.legend{i} = strcat('Condition', num2str(i));
+        end
     end
+    hlgd = legend(hbar, params.legend);
+else
+    hlgd = [];
 end
-hlgd = legend(hbar, params.legend);
 
 if isempty(params.xtick)
     params.xtick = [];

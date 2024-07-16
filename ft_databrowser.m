@@ -1675,7 +1675,7 @@ switch key
     fprintf('identified channel name: %s\n',label);
     redraw_cb(h, eventdata);
 
-    ft_plot_text(xpos, ypos, label, 'FontSize', cfg.fontsize, 'FontUnits', cfg.fontunits, 'tag', 'identifiedchannel', 'FontSize', cfg.fontsize, 'FontUnits', cfg.fontunits);
+    ft_plot_text(xpos, ypos, label, 'tag', 'identifiedchannel', 'FontSize', cfg.fontsize, 'FontUnits', cfg.fontunits);
     if ~ishold
       hold on
       ft_plot_vector(opt.curdata.time{1}, opt.curdata.trial{1}(datindx,:)', 'box', false, 'tag', 'identifiedchannel', 'hpos', opt.layouttime.pos(layoutindx,1), 'vpos', opt.layouttime.pos(layoutindx,2), 'width', opt.layouttime.width(layoutindx), 'height', opt.layouttime.height(layoutindx), 'hlim', opt.hlim, 'vlim', opt.vlim, 'color', 'k', 'linewidth', 2);
@@ -2358,7 +2358,7 @@ if strcmp(cfg.viewmode, 'component')
       % drawnow
     end % for chanindx
 
-    caxis([0 1]);
+    clim([0 1]);
 
   end % if redraw_topo
 
