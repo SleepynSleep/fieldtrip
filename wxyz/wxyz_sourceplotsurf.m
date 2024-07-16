@@ -91,7 +91,10 @@ if cbar
 end
 colormap(gca, cmap);
 view(viewangle);
-light;
+% light;
+% light('Position',[1 0 0]);
+% light('Position',[0 1 0]);
+% light('Position',[0 0 1]);
 lighting gouraud;
 material dull;
 if setpivot

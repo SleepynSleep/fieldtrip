@@ -38,6 +38,7 @@ params.data         = data;
 params.err          = err;
 params.color        = color;
 params.legend       = '';
+params.showlegend   = true;
 params.xtick        = '';
 params.xlabel       = '';
 params.ylabel       = '';
@@ -78,13 +79,17 @@ for i = 1:size(params.data, 2)
         end
     end
 end
-if isempty(params.legend)
-    params.legend = [];
-    for i = 1:size(params.data, 2)
-        params.legend{i} = strcat('Condition', num2str(i));
+if params.showlegend
+    if isempty(params.legend)
+        params.legend = [];
+        for i = 1:size(params.data, 2)
+            params.legend{i} = strcat('Condition', num2str(i));
+        end
     end
+    hlgd = legend(hbar, params.legend);
+else
+    hlgd = [];
 end
-hlgd = legend(hbar, params.legend);
 
 if isempty(params.xtick)
     params.xtick = [];
