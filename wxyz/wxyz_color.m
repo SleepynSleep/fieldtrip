@@ -1,99 +1,72 @@
 function varargout = wxyz_color(varargin)
+% WXYZ_COLOR
+% ================================================================
+% Usage:
+%   c = wxyz_color;             return 1st colorlist;
+%   c = wxyz_color();           return 1st colorlist;
+%   c = wxyz_color([], 1:6);    return 1:6 color of 1st colorlist;
+%   c = wxyz_color(2);          return 2nd colorlist;
+%   c = wxyz_color(2, 1:6);     return 1:6 color of 2nd colorlist;
+%   c = wxyz_color('all');      return all colorlists;
+%   c = wxyz_color('draw');     return and draw all colorlists;
+% ================================================================
+% @author: wxyz. 2024/09/29.
+wxyz_cdata = importdata('wxyz_cdata.mat');
 
-wxyzColor = func_getColor();
-
-%%
-code = 0;
-if nargin == 0 % return all color
-    varargout{1} = wxyzColor;
+if nargin == 0 % default is 1st
+    ctype = 1; cnum = [];
 elseif nargin == 1
-    if isnumeric(varargin{1}) && numel(varargin{1})==1 && varargin{1} >= 1 && varargin{1} <= length(wxyzColor)
-        varargout{1} = wxyzColor{varargin{1}};
-    else
-        error(['The intput varaiable should be less than ' num2str(length(wxyzColor))]);
+    if isnumeric(varargin{1})
+        ctype = varargin{1}; cnum = [];
+    elseif strcmpi('all', varargin{1})
+        varargout{1} = wxyz_cdata.Color;
+        return;
+    elseif strcmpi('draw', varargin{1})
+        varargout{1} = wxyz_cdata.Color;
+        for i = 1:numel(wxyz_cdata.Name)
+            clist = wxyz_cdata.Color(wxyz_cdata.PackageInd == i);
+            cNames = wxyz_cdata.Key(wxyz_cdata.PackageInd == i);
+            fig = drawAllColor(clist, cNames, wxyz_cdata.Key);
+            print(fig, strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\color\', '_', num2str(i), '_', wxyz_cdata.Name{i}, '.png'), '-dpng', '-r300', '-image');
+            close(fig);
+        end
+        return;
     end
 elseif nargin == 2
-    if isnumeric(varargin{1}) && numel(varargin{1})==1 && isnumeric(varargin{2}) && all(varargin{2}<=size(wxyzColor{varargin{1}},1))
-        varargout{1} = wxyzColor{varargin{1}}(varargin{2}, :);
+    if isnumeric(varargin{1})
+        ctype = varargin{1};
     else
-        error('Please check the intput varaiable');
+        ctype = 1;
     end
-else
-    error('The intput varaiable should be given and less than 2.')
+    cnum = varargin{2};
+end
+if ~isempty(ctype)
+    varargout{1} = wxyz_cdata.Color{ctype}./255;
+    N = size(varargout{1}, 1);
+    if isempty(cnum) % No selection of given color
+    else % Selection of given color
+        varargout{1} = varargout{1}(mod(cnum-1, N)+1, :);
+        varargout{1} = varargout{1}.*(.9.^(floor((cnum-1)./N).'));
+    end
 end
 
-end
-
-
-function color = func_getColor()
-
-color = {
-    [016 070 128;
-    049 124 183;
-    109 173 209;
-    182 215 232;
-    233 241 244;
-    251 227 213;
-    246 178 147;
-    220 109 087;
-    183 034 048;
-    109 001 031]/255; % Color1
-
-    [022 048 074;
-    019 103 131;
-    033 158 188;
-    144 201 231;
-    254 183 005;
-    255 158 002;
-    250 134 000]/255; % Color2
-
-    [002 038 062;
-    003 050 080;
-    013 076 109;
-    115 186 214;
-    239 065 067;
-    191 030 046;
-    196 050 063]/255; % Color3
-
-    [002 048 071;
-    018 104 131;
-    039 158 188;
-    144 201 230;
-    252 158 127;
-    247 091 065;
-    213 033 032]/255; % Color4
-
-    [038 070 083;
-    040 114 113;
-    042 157 140;
-    138 176 125;
-    233 196 107;
-    243 162 097;
-    230 111 081]/255; % Color5
-
-    [255 255 255;
-    251 227 213;
-    246 178 147;
-    220 109 087;
-    183 034 048;
-    109 001 031]/255; % Color6
-
-    [016 070 128;
-    049 124 183;
-    109 173 209;
-    182 215 232;
-    233 241 244;
-    255 255 255]/255; % Color7
-    
-    
-    [184 219 179;
-    114 176 99;
-    113 154 172;
-    226 145 53;
-    148 198 205;
-    74 95 126]/255; % color 8
-    
-    };
-
-
-end
+%% SUBFUNCTION
+function fig = drawAllColor(cstruct, cNames, allNames)
+    numCs = length(cstruct);
+    numRows = 25;
+    numCols = ceil(numCs / numRows);
+    [fig, hTiled] = wxyz_figure(numRows, numCols, 'Position', [0 100 500*numCols 1000]);
+    set(hTiled, 'TileIndexing', 'columnmajor');
+    for i = 1:numCs
+        nexttile;
+        c=cstruct{i}/255;
+        imagesc(1:256);
+        colormap(gca, c);
+        set(gca, 'ytick', [], 'xtick', []);
+        cmapidx = find(strcmpi(allNames, cNames{i}));
+        ylabel(strcat(['[', num2str(cmapidx), ']'], {32}, cNames{i}(strfind(cNames{i}, ':')+2:end)), 'FontSize', 12, 'Interpreter', 'none',...
+            'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+        axis tight;
+        % axis off;
+    end
+    wxyz_decorFigure(fig);
