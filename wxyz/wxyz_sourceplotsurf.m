@@ -97,6 +97,7 @@ view(viewangle);
 % light('Position',[0 0 1]);
 lighting gouraud;
 material dull;
+% camlight;
 if setpivot
     wxyz_setPivot(gca, pivot);
 end

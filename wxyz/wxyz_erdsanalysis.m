@@ -1,4 +1,4 @@
-function erds = wxyz_erdsanalysis(data, frequency, baseline)
+function erds = wxyz_erdsanalysis(data, frequency, baseline, varargin)
 % WXYZ_ERDSANALYSIS This function performs ERD/ERS processing on MEG data
 % 
 % This function takes data, frequency, and baseline as inputs. Return the
@@ -15,7 +15,6 @@ function erds = wxyz_erdsanalysis(data, frequency, baseline)
 % Version: 1.0
 % Last revision date : 2024-04-01
 
-
 % do the general setup of the function
 ft_defaults
 
@@ -26,17 +25,24 @@ end
 
 % Frequency filter
 datatmp = data.trial;
-method = 'bandpass'; % bandpass / FFT / 
+method = ft_getopt(varargin, 'method',   'bandpass'); % bandpass / FFT / 
 bpopt = [];
-bpopt.order = 6;
+bpopt.order = 4;
 switch method
     case 'bandpass'
         datatmpfilt = cellfun(@(x) ft_preproc_bandpassfilter(x, data.fsample, frequency, bpopt.order), datatmp, 'UniformOutput', false);
     case 'fft'
 
 end
-% Smooth param
-smoothWinLength = 200;
+
+erdslength = ft_getopt(varargin, 'erdslength', []);
+if ~isempty(erdslength)
+    data.trial      = datatmpfilt;
+    cfg             = [];
+    cfg.toilim      = erdslength;
+    datatmp         = ft_redefinetrial(cfg, data);
+    datatmpfilt     = datatmp.trial;
+end
 
 nTrial = numel(data.trial);
 % Calc trial mean
@@ -49,6 +55,8 @@ datatmppower = cellfun(@(x) (x-trialmean).^2, datatmpfilt, 'UniformOutput', fals
 trialpow = sum(reshape(cell2mat(datatmppower), [size(datatmpfilt{1}), nTrial]), 3)/(nTrial - 1);
 clearvars datatmppower
 
+
+smoothWinLength = ft_getopt(varargin, 'smooth', data.fsample); % Smooth param
 % Smoothing
 trialpow = smoothdata(trialpow, 2, 'movmean', smoothWinLength);
 
@@ -61,7 +69,11 @@ avgmat = (trialpow - bslinepow) ./ bslinepow * 100;
 
 % collect the results
 erds            = keepfields(data, {'label', 'trialinfo', 'fsample', 'grad'});
-erds.time       = data.time{1};
+if ~isempty(erdslength)
+    erds.time       = datatmp.time{1};
+else
+    erds.time       = data.time{1};
+end
 erds.avg        = avgmat;
 erds.dimord     = 'chan_time';
 erds.config.method  = method;
