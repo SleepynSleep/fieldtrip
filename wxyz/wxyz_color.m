@@ -27,8 +27,8 @@ elseif nargin == 1
             clist = wxyz_cdata.Color(wxyz_cdata.PackageInd == i);
             cNames = wxyz_cdata.Key(wxyz_cdata.PackageInd == i);
             fig = drawAllColor(clist, cNames, wxyz_cdata.Key);
-            print(fig, strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\color\', '_', num2str(i), '_', wxyz_cdata.Name{i}, '.png'), '-dpng', '-r300', '-image');
-            close(fig);
+            % print(fig, strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\color\', '_', num2str(i), '_', wxyz_cdata.Name{i}, '.png'), '-dpng', '-r300', '-image');
+            % close(fig);
         end
         return;
     end
