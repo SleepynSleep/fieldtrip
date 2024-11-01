@@ -12,7 +12,7 @@ function [hbar, hlgd] = wxyz_barplot(data, err, color, varargin) % dat, err, lgd
 %
 % Other arguments should come in key-value pairs and can include 'legend',
 % 'xtick', 'xlabel', 'ylabel', 'title', 'show0err', 'BarWidth',
-% 'errBarStyle', 'errBarWidth', 'errBarColor'.
+% 'errBarStyle', 'errBarWidth', 'errBarColor', 'showData'.
 % 
 % hbar  - the created bar plot handle.
 % hlgd  - the created elgend handle.
@@ -20,9 +20,7 @@ function [hbar, hlgd] = wxyz_barplot(data, err, color, varargin) % dat, err, lgd
 % example:
 %   [hbar, hlgd] = wxyz_barplot(data, err, color, 'xtick', {'G1', 'G2', 'G3'});
 % 
-% Author: wxyz
-% Version: 1.0
-% Last revision date : 2024-01-08
+% @author: wxyz. 2024/11/01.
 
 % dat: m*n. m->group, n->barnum per group.
 
@@ -33,33 +31,48 @@ if ~holdflag
   hold on
 end
 
-% Default value
+% Set variables
 params.data         = data;
 params.err          = err;
 params.color        = color;
-params.legend       = '';
-params.showlegend   = true;
-params.xtick        = '';
-params.xlabel       = '';
-params.ylabel       = '';
-params.title        = '';
-params.show0err     = true;
-params.BarWidth     = 1;
-params.errBarStyle  = '-';
-params.errBarWidth  = 1;
-params.errBarColor  = 'k';
-params.facealpha    = 1;
 
-if ~isempty(varargin)
-    for i = 1:2:length(varargin) % parse varargin
-        key = varargin{i};
-        if isfield(params, key)
-            params.(key) = varargin{i+1};
-        else
-            error(['Unrecognized key: ', key]);
-        end
-    end
-end
+% Default value
+params.legend       = wxyz_getopt(varargin, 'legend', '');
+params.showlegend   = wxyz_getopt(varargin, 'showlegend', '');
+params.xtick        = wxyz_getopt(varargin, 'xtick', '');
+params.xlabel       = wxyz_getopt(varargin, 'xlabel', '');
+params.ylabel       = wxyz_getopt(varargin, 'ylabel', '');
+params.title        = wxyz_getopt(varargin, 'title', '');
+params.show0err     = wxyz_getopt(varargin, 'show0err', true);
+params.BarWidth     = wxyz_getopt(varargin, 'BarWidth', 1);
+params.errBarStyle  = wxyz_getopt(varargin, 'errBarStyle', '-');
+params.errBarWidth  = wxyz_getopt(varargin, 'errBarWidth', 1);
+params.errBarColor  = wxyz_getopt(varargin, 'errBarColor', 'k');
+params.facealpha    = wxyz_getopt(varargin, 'facealpha', 1);
+params.showData     = wxyz_getopt(varargin, 'showData', false);
+
+% params.legend       = '';
+% params.showlegend   = true;
+% params.xtick        = '';
+% params.xlabel       = '';
+% params.ylabel       = '';
+% params.title        = '';
+% params.show0err     = true;
+% params.BarWidth     = 1;
+% params.errBarStyle  = '-';
+% params.errBarWidth  = 1;
+% params.errBarColor  = 'k';
+% params.facealpha    = 1;
+% if ~isempty(varargin)
+%     for i = 1:2:length(varargin) % parse varargin
+%         key = varargin{i};
+%         if isfield(params, key)
+%             params.(key) = varargin{i+1};
+%         else
+%             error(['Unrecognized key: ', key]);
+%         end
+%     end
+% end
 
 if size(params.color, 1) ~= size(params.data, 2)
     error('Color number should be euqal with bar number.');
