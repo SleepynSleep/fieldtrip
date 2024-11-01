@@ -45,9 +45,10 @@ params.ylabel       = '';
 params.title        = '';
 params.show0err     = true;
 params.BarWidth     = 1;
-params.errBarStyle  = '-';
-params.errBarWidth  = 1;
+% params.errBarStyle  = '-';
+params.errBarWidth  = 1.2;
 params.errBarColor  = 'k';
+params.errBarCapSize = 6;
 params.facealpha    = 1;
 
 if ~isempty(varargin)
@@ -66,15 +67,33 @@ if size(params.color, 1) ~= size(params.data, 2)
 end
 
 hbar = bar(params.data, 'BarWidth', params.BarWidth);
-for i = 1:size(params.data, 2)
-    hbar(i).FaceColor = params.color(i, :);
-    hbar(i).FaceAlpha = params.facealpha;
+if numel(hbar) == 1
+    hbar.CData = params.color;
+    hbar.FaceAlpha = params.facealpha;
     if ~isempty(params.err)
         if params.show0err
-            errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
+            errorbar(hbar.XEndPoints, params.data, params.err, 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
         else
-            if ~isempty(find(params.err(:,i)~=0, 1))
-                errorbar(hbar(i).XEndPoints(params.err(:,i)~=0), data(params.err(:,i)~=0, i), params.err(params.err(:,i)~=0, i), 'LineStyle', params.errBarStyle, 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
+            if ~isempty(find(params.err~=0, 1))
+                errorbar(hbar.XEndPoints(params.err~=0), data(params.err~=0), params.err(params.err~=0),...
+                    'Color', params.errBarColor, 'CapSize', params.errBarCapSize, ...
+                    'LineStyle', 'none', 'LineWidth', params.errBarWidth);
+            end
+        end
+    end
+else
+    for i = 1:size(params.data, 2)
+        hbar(i).FaceColor = params.color(i, :);
+        hbar(i).FaceAlpha = params.facealpha;
+        if ~isempty(params.err)
+            if params.show0err
+                errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
+            else
+                if ~isempty(find(params.err(:,i)~=0, 1))
+                    errorbar(hbar(i).XEndPoints(params.err(:,i)~=0), data(params.err(:,i)~=0, i), params.err(params.err(:,i)~=0, i),...
+                        'Color', params.errBarColor, 'CapSize', params.errBarCapSize, ...
+                        'LineStyle', 'none', 'LineWidth', params.errBarWidth);
+                end
             end
         end
     end
