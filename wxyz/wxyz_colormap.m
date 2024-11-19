@@ -36,8 +36,23 @@ else
     elseif strcmpi('draw', ctype)
         varargout{1} = cmapdata;
         for i = 1:numel(wxyz_cmapdata.colormap)
-            fig = drawAllColorMap(wxyz_cmapdata.colormap(i), wxyz_cmapdata.fullNames);
-            % print(fig, fullfile(strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\colormap\', wxyz_cmapdata.colormap(i).Type, '.png')), '-dpng', '-r600', '-image');
+            if numel(wxyz_cmapdata.colormap(i).Names) <= 100
+                fig = drawAllColorMap(wxyz_cmapdata.colormap(i), wxyz_cmapdata.fullNames);
+                print(fig, fullfile(strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\colormap\', wxyz_cmapdata.colormap(i).Type, '.png')), '-dpng', '-r600', '-image');
+            else
+                for j = 1:rem(numel(wxyz_cmapdata.colormap(i).Names), 100)+1
+                    tmp = wxyz_cmapdata.colormap(i);
+                    if j*100<=numel(wxyz_cmapdata.colormap(i).Names)
+                        tmp.Names = tmp.Names((j-1)*100+1:j*100);
+                        tmp.Colors = tmp.Colors((j-1)*100+1:j*100);
+                    else
+                        tmp.Names = tmp.Names((j-1)*100+1:end);
+                        tmp.Colors = tmp.Colors((j-1)*100+1:end);
+                    end
+                    fig = drawAllColorMap(tmp, wxyz_cmapdata.fullNames);
+                    print(fig, fullfile(strcat('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\colormap\', wxyz_cmapdata.colormap(i).Type, '_', num2str(j), '.png')), '-dpng', '-r600', '-image');
+                end
+            end
         end
         return;
     else
@@ -57,14 +72,19 @@ varargout{1} = cmap;
 %% SUBFUNCTION
 function fig = drawAllColorMap(cmapstruct, cmapNames)
     cmapList = [cmapstruct.Colors];
+    disp(cmapList);
     numCmaps = length(cmapList);
-    numRows = ceil(sqrt(numCmaps))-1;
+    numRows = ceil(sqrt(numCmaps));
     numCols = ceil(numCmaps / numRows);
     if numCols < 7
         numCols = 7;
         numRows = 5;
     end
-    fig = wxyz_figure(numRows, numCols, 'Position', [0 100 2000 500]);
+    if numCmaps <= 100
+        fig = wxyz_figure(numRows, numCols, 'Position', [0 100 2000 1000]);
+    else
+        fig = wxyz_figure(numRows, numCols, 'Position', [0 100 6000 2000]);
+    end
     for i = 1:numCmaps
         nexttile;
         cmap=cmapList{i};
@@ -72,7 +92,9 @@ function fig = drawAllColorMap(cmapstruct, cmapNames)
         colormap(gca, cmap);
         set(gca, 'ytick', [], 'xtick', []);
         cmapidx = find(strcmpi(cmapstruct.Names{i}, cmapNames));
-        title(strcat(['[', num2str(cmapidx), ']-'], cmapstruct.Names{i}), 'FontSize', 12, 'Interpreter', 'none');
+        % title(strcat(['[', num2str(cmapidx), ']-'], cmapstruct.Names{i}), 'FontSize', 12, 'Interpreter', 'none');
+        title(cmapstruct.Names{i}, 'FontSize', 12, 'Interpreter', 'none');
+        ylabel(['[', num2str(cmapidx), ']']);
         axis tight;
         % axis off;
     end
