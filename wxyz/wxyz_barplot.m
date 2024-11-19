@@ -12,7 +12,8 @@ function [hbar, hlgd] = wxyz_barplot(data, err, color, varargin) % dat, err, lgd
 %
 % Other arguments should come in key-value pairs and can include 'legend',
 % 'xtick', 'xlabel', 'ylabel', 'title', 'show0err', 'BarWidth',
-% 'errBarStyle', 'errBarWidth', 'errBarColor', 'showData'.
+% 'errBarStyle', 'errBarWidth', 'errBarColor', 'errBarCapSize',
+% 'facealpha', 'edgecolor', 'edgealpha'.
 % 
 % hbar  - the created bar plot handle.
 % hlgd  - the created elgend handle.
@@ -22,7 +23,7 @@ function [hbar, hlgd] = wxyz_barplot(data, err, color, varargin) % dat, err, lgd
 % 
 % @author: wxyz. 2024/11/01.
 
-% dat: m*n. m->group, n->barnum per group.
+% data: m*n. m->group, n->condition per group.
 
 % Code implementation section
 % Everything is added to the current figure
@@ -32,107 +33,87 @@ if ~holdflag
 end
 
 % Set variables
-params.data         = data;
-params.err          = err;
-params.color        = color;
+opt                 = [];
+opt.data            = data;
+opt.err             = err;
+opt.color           = color;
+
+% Get nGroup and nCond
+opt.nGroup          = size(opt.data, 1);
+opt.nCond           = size(opt.data, 2);
 
 % Default value
-params.legend       = wxyz_getopt(varargin, 'legend', '');
-params.showlegend   = wxyz_getopt(varargin, 'showlegend', '');
-params.xtick        = wxyz_getopt(varargin, 'xtick', '');
-params.xlabel       = wxyz_getopt(varargin, 'xlabel', '');
-params.ylabel       = wxyz_getopt(varargin, 'ylabel', '');
-params.title        = wxyz_getopt(varargin, 'title', '');
-params.show0err     = wxyz_getopt(varargin, 'show0err', true);
-params.BarWidth     = wxyz_getopt(varargin, 'BarWidth', 1);
-params.errBarStyle  = wxyz_getopt(varargin, 'errBarStyle', '-');
-params.errBarWidth  = wxyz_getopt(varargin, 'errBarWidth', 1);
-params.errBarColor  = wxyz_getopt(varargin, 'errBarColor', 'k');
-params.facealpha    = wxyz_getopt(varargin, 'facealpha', 1);
-params.showData     = wxyz_getopt(varargin, 'showData', false);
+opt.legend          = wxyz_getopt(varargin, 'legend', '');
+% opt.legendmode      = wxyz_getopt(varargin, 'legendmode', 'manual'); % 'manual' or 'auto'
+% opt.showlegend      = wxyz_getopt(varargin, 'showlegend', '');
+opt.xtick           = wxyz_getopt(varargin, 'xtick', '');
+% opt.xtickmode       = wxyz_getopt(varargin, 'xtickmode', 'manual'); % 'manual' or 'auto'
+opt.xlabel          = wxyz_getopt(varargin, 'xlabel', '');
+opt.ylabel          = wxyz_getopt(varargin, 'ylabel', '');
+opt.title           = wxyz_getopt(varargin, 'title', '');
+opt.show0err        = wxyz_getopt(varargin, 'show0err', true);
+opt.BarWidth        = wxyz_getopt(varargin, 'BarWidth', 1);
+opt.errBarStyle     = wxyz_getopt(varargin, 'errBarStyle', '-');
+opt.errBarWidth     = wxyz_getopt(varargin, 'errBarWidth', 1);
+opt.errBarColor     = wxyz_getopt(varargin, 'errBarColor', 'k');
+opt.errBarCapSize   = wxyz_getopt(varargin, 'errBarCapSize', 6);
+% opt.facecolor       = wxyz_getopt(varargin, 'facecolor', 'none');
+opt.facealpha       = wxyz_getopt(varargin, 'facealpha', 1);
+opt.edgecolor       = wxyz_getopt(varargin, 'edgecolor', 'none');
+opt.edgealpha       = wxyz_getopt(varargin, 'edgealpha', 1);
+% opt.showData        = wxyz_getopt(varargin, 'showData', false);
 
-% params.legend       = '';
-% params.showlegend   = true;
-% params.xtick        = '';
-% params.xlabel       = '';
-% params.ylabel       = '';
-% params.title        = '';
-% params.show0err     = true;
-% params.BarWidth     = 1;
-% params.errBarStyle  = '-';
-% params.errBarWidth  = 1;
-% params.errBarColor  = 'k';
-% params.facealpha    = 1;
-% if ~isempty(varargin)
-%     for i = 1:2:length(varargin) % parse varargin
-%         key = varargin{i};
-%         if isfield(params, key)
-%             params.(key) = varargin{i+1};
-%         else
-%             error(['Unrecognized key: ', key]);
-%         end
-%     end
-% end
-
-if size(params.color, 1) ~= size(params.data, 2)
+if size(opt.color, 1) ~= size(opt.data, 1) && size(opt.color, 1) ~= size(opt.data, 2)
     error('Color number should be euqal with bar number.');
 end
 
-hbar = bar(params.data, 'BarWidth', params.BarWidth);
-if numel(hbar) == 1
-    hbar.CData = params.color;
-    hbar.FaceAlpha = params.facealpha;
-    if ~isempty(params.err)
-        if params.show0err
-            errorbar(hbar.XEndPoints, params.data, params.err, 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
+if opt.nGroup ~= 1 && opt.nCond == 1 % Swap nGroup and nCond
+    [opt.nGroup, opt.nCond] = deal(opt.nCond, opt.nGroup);
+end
+
+% Draw bar and errbar
+if opt.nGroup == 1 % only one group
+    hbar = gobjects(1, opt.nCond);
+    for i = 1:opt.nCond
+        hbar(i) = bar(i, opt.data(i), 'BarWidth', opt.BarWidth, 'EdgeColor', opt.edgecolor);
+        hbar(i).FaceColor = opt.color(i, :);
+        hbar(i).FaceAlpha = opt.facealpha;
+        if ~(opt.err(i) == 0 && ~opt.show0err)
+            errorbar(hbar(i).XEndPoints, hbar(i).YEndPoints, opt.err(i), 'Color', opt.errBarColor, 'CapSize', opt.errBarCapSize, 'LineStyle', 'none', 'LineWidth', opt.errBarWidth);
+        end
+    end
+    if isempty(opt.xtick)
+        set(gca, 'XTick', []);
+    else
+        set(gca, 'XTick', 1:opt.nCond, 'XTickLabel', opt.xtick);
+    end
+else % more than one group
+    hbar = bar(opt.data, 'BarWidth', opt.BarWidth, 'EdgeColor', opt.edgecolor);
+    for i = 1:opt.nCond
+        hbar(i).FaceColor = opt.color(i, :);
+        hbar(i).FaceAlpha = opt.facealpha;
+        if opt.show0err
+            errorbar(hbar(i).XEndPoints, hbar(i).YEndPoints, opt.err(:, i), 'Color', opt.errBarColor, 'CapSize', opt.errBarCapSize, 'LineStyle', 'none', 'LineWidth', opt.errBarWidth);
         else
-            if ~isempty(find(params.err~=0, 1))
-                errorbar(hbar.XEndPoints(params.err~=0), data(params.err~=0), params.err(params.err~=0),...
-                    'Color', params.errBarColor, 'CapSize', params.errBarCapSize, ...
-                    'LineStyle', 'none', 'LineWidth', params.errBarWidth);
-            end
+            err = opt.err(:, i);
+            errorbar(hbar(i).XEndPoints(err~=0), hbar(i).YEndPoints(err~=0), err(err~=0), 'Color', opt.errBarColor, 'CapSize', opt.errBarCapSize, 'LineStyle', 'none', 'LineWidth', opt.errBarWidth);
         end
     end
-else
-    for i = 1:size(params.data, 2)
-        hbar(i).FaceColor = params.color(i, :);
-        hbar(i).FaceAlpha = params.facealpha;
-        if ~isempty(params.err)
-            if params.show0err
-                errorbar(hbar(i).XEndPoints, params.data(:, i), params.err(:, i), 'LineStyle', 'none', 'Color', params.errBarColor, 'LineWidth', params.errBarWidth);
-            else
-                if ~isempty(find(params.err(:,i)~=0, 1))
-                    errorbar(hbar(i).XEndPoints(params.err(:,i)~=0), data(params.err(:,i)~=0, i), params.err(params.err(:,i)~=0, i),...
-                        'Color', params.errBarColor, 'CapSize', params.errBarCapSize, ...
-                        'LineStyle', 'none', 'LineWidth', params.errBarWidth);
-                end
-            end
-        end
+    if isempty(opt.xtick)
+        set(gca, 'XTick', []);
+    else
+        set(gca, 'XTick', 1:opt.nGroup, 'XTickLabel', opt.xtick);
     end
-end
-if params.showlegend
-    if isempty(params.legend)
-        params.legend = [];
-        for i = 1:size(params.data, 2)
-            params.legend{i} = strcat('Condition', num2str(i));
-        end
-    end
-    hlgd = legend(hbar, params.legend);
-else
-    hlgd = [];
 end
 
-if isempty(params.xtick)
-    params.xtick = [];
-    for i = 1:size(params.data, 1)
-        params.xtick{i} = strcat('Group', num2str(i));
-    end
+% Update legend
+if ~isempty(opt.legend)
+    hlgd = legend(hbar, opt.legend);
 end
-set(gca, 'XTick', 1:size(params.data, 1), 'XTickLabel', params.xtick);
 
-xlabel(params.xlabel);
-ylabel(params.ylabel);
-title(params.title);
+xlabel(opt.xlabel);
+ylabel(opt.ylabel);
+title(opt.title);
 
 if ~holdflag
   hold off

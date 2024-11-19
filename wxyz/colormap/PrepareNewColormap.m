@@ -1,13 +1,16 @@
 clc;clear;close all hidden;
 ft_defaults;
 
+addpath('./othercolor/');
+
 %% colormap
-wxyz_cmapdata = load('C:\Users\WangXu\Desktop\slanColor-master\slanCM\slanCM_Data.mat');
+wxyz_cmapdata = load('./slanCM_Data.mat');
 wxyz_cmapdata = rmfield(wxyz_cmapdata, 'author');
 wxyz_cmapdata.colormap = wxyz_cmapdata.slandarerCM;
 wxyz_cmapdata = rmfield(wxyz_cmapdata, 'slandarerCM');
 wxyz_cmapdata.fullNames = wxyz_cmapdata.fullNames';
 
+% wxyz
 tmp = struct('fullNames', [], 'colormap', struct('Type', 'wxyz', 'Names', [], 'Colors', []));
 for i = 1:numel(wxyz_color_old)
     tmp.fullNames = cat(1, tmp.fullNames, {strcat('wxyz_', num2str(i))});
@@ -15,10 +18,21 @@ for i = 1:numel(wxyz_color_old)
     tmp.colormap(end).Colors = cat(2, tmp.colormap(end).Colors, {wxyz_colormap(i)});
 end
 
-wxyz_cmapdata.fullNames = cat(1, tmp.fullNames, wxyz_cmapdata.fullNames);
-wxyz_cmapdata.colormap = [tmp.colormap wxyz_cmapdata.colormap];
+% othercolor
+tmp_othercolor = struct('fullNames', [], 'colormap', struct('Type', 'othercolor', 'Names', [], 'Colors', []));
+listOthercolor = othercolor();
+for i = 1:numel(listOthercolor)
+    tmp_othercolor.fullNames = cat(1, tmp_othercolor.fullNames, {listOthercolor{i}});
+    tmp_othercolor.colormap(end).Names = cat(2, tmp_othercolor.colormap(end).Names, {listOthercolor{i}});
+    tmp_othercolor.colormap(end).Colors = cat(2, tmp_othercolor.colormap(end).Colors, {othercolor(listOthercolor{i})});
+end
+
+wxyz_cmapdata.fullNames = cat(1, tmp.fullNames, wxyz_cmapdata.fullNames, tmp_othercolor.fullNames);
+wxyz_cmapdata.colormap = [tmp.colormap wxyz_cmapdata.colormap tmp_othercolor.colormap];
 
 save('D:\MATLAB\R2023b\toolbox\fieldtrip\wxyz\wxyz_cmapdata.mat', 'wxyz_cmapdata');
+
+rmpath('./othercolor/');
 
 %% color
 wxyz_cdata = load('C:\Users\WangXu\Desktop\slanColor-master\slanCL\slanCL_Data.mat');
