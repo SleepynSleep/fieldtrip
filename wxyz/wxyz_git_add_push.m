@@ -6,8 +6,9 @@ elseif nargin == 0
 else
     error('Please check your input! The input should be string');
 end
+
 !git add .
 % !git commit -m "add & push by SleepynSleep using Matlab"
-system(strcat('git commit -m "', commit, '"'))
+system(strcat('git commit -m "', commit, '"'));
 !git push -u origin master
 end
