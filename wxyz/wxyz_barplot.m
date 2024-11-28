@@ -109,6 +109,9 @@ end
 % Update legend
 if ~isempty(opt.legend)
     hlgd = legend(hbar, opt.legend);
+    hlgd.AutoUpdate = 'off';
+else
+    hlgd = [];
 end
 
 xlabel(opt.xlabel);
