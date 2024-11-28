@@ -91,5 +91,8 @@ ylabel(opt.ylabel);
 % Update legend
 if opt.showlegend
     hlgd = legend(hbar, opt.legend);
+    hlgd.AutoUpdate = 'off';
+else
+    hlgd = [];
 end
 
