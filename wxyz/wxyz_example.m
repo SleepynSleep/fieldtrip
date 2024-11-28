@@ -1,4 +1,4 @@
-% wxyz_functiontest
+% wxyz_example
 % Test all the function in the 'wxyz' folder
 
 %% wxyz_barplot
