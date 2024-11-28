@@ -1,6 +1,6 @@
 function [hbar, hlgd] = wxyz_barscatterplot(data, varargin) % dat, err, lgd, xaxistick, yaxislabel, gcatitle, color, isPlot0err)
 
-% @author: wxyz. 2024/11/01.
+% @author: wxyz. 2024/11/28.
 
 % data: m*n*k. m->group, n->samples, k->conditions per group.
 
