@@ -25,6 +25,7 @@ opt.nCond           = size(opt.data, 3);
 
 % Default value
 opt.legend          = wxyz_getopt(varargin, 'legend',       '');
+opt.legendori       = wxyz_getopt(varargin, 'legendori',    'vertical');
 opt.showlegend      = wxyz_getopt(varargin, 'showlegend',   true);
 opt.xtick           = wxyz_getopt(varargin, 'xtick',        '');
 opt.xlabel          = wxyz_getopt(varargin, 'xlabel',       '');
@@ -33,7 +34,7 @@ opt.title           = wxyz_getopt(varargin, 'title',        '');
 opt.show0err        = wxyz_getopt(varargin, 'show0err',     false);
 opt.errtype         = wxyz_getopt(varargin, 'errortype',    'std'); % 'std' or 'sem'
 opt.BarWidth        = wxyz_getopt(varargin, 'BarWidth',     1);
-opt.facecolor       = wxyz_getopt(varargin, 'facecolor',    [0.5 0.5 0.5]);
+opt.facecolor       = wxyz_getopt(varargin, 'facecolor',    rand([opt.nCond, 3]));
 opt.facealpha       = wxyz_getopt(varargin, 'facealpha',    1);
 opt.edgecolor       = wxyz_getopt(varargin, 'edgecolor',    'none');
 opt.edgealpha       = wxyz_getopt(varargin, 'edgealpha',    1);
@@ -84,14 +85,18 @@ end
 clear avg err
 
 % Update xtick, xlabel, ylabel
+xticks(1:opt.nGroup);
 xticklabels(opt.xtick);
+set(gca, 'TickLabelInterpreter', 'none');
 xlabel(opt.xlabel);
 ylabel(opt.ylabel);
+title(opt.title);
 
 % Update legend
 if opt.showlegend
     hlgd = legend(hbar, opt.legend);
     hlgd.AutoUpdate = 'off';
+    hlgd.Orientation = opt.legendori;
 else
     hlgd = [];
 end
