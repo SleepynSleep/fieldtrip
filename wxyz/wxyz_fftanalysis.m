@@ -32,7 +32,7 @@ latency = ft_getopt(varargin, 'latency', []);
 channel = ft_getopt(varargin, 'channel', 'meg');
 method  = ft_getopt(varargin, 'method' , 'mtmfft');
 taper   = ft_getopt(varargin, 'taper'  , 'hanning');
-width   = ft_getopt(varargin, 'width'  , 2);
+width   = ft_getopt(varargin, 'width'  , 0.1);
 padding = ft_getopt(varargin, 'padding', 10);
 
 % Do data selection if 
@@ -60,4 +60,5 @@ fft             = ft_freqanalysis(cfg, tmp);
 % Add average fft
 fft.dimord      = 'rpt_chan_freq';
 fft.fft         = abs(fft.fourierspctrm);
+fft.pow         = fft.fft.^2;
 fft.fftavg      = squeeze(mean(fft.fft, 1));
