@@ -101,3 +101,10 @@ else
     hlgd = [];
 end
 
+if ~holdflag
+  hold off
+end
+
+if ~nargout
+  clear hbar hlgd
+end
