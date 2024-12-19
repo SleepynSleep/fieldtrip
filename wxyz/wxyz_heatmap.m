@@ -136,9 +136,9 @@ end
 % TODO
 
 %% Set XTick/XTickLabel and YTick/YTickLabel
-opt.XVarName = arrayfun(@(x) strcat('Var-', num2str(x)), 1:size(data, 2), 'UniformOutput', false);
-opt.YVarName = arrayfun(@(x) strcat('Var-', num2str(x)), 1:size(data, 1), 'UniformOutput', false);
 if opt.showlabel
+    opt.XVarName = arrayfun(@(x) strcat('Var-', num2str(x)), 1:size(data, 2), 'UniformOutput', false);
+    opt.YVarName = arrayfun(@(x) strcat('Var-', num2str(x)), 1:size(data, 1), 'UniformOutput', false);
     if isempty(opt.rowlabel)
         opt.rowlabel = opt.XVarName;
     end
