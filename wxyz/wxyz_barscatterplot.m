@@ -16,9 +16,9 @@ opt                 = [];
 opt.data            = data;
 
 % Get nGroup and nCond
-if ndims(opt.data) ~= 3
-    error('Data or Error data input should be 3d.');
-end
+% if ndims(opt.data) ~= 3
+%     error('Data or Error data input should be 3d.');
+% end
 opt.nGroup          = size(opt.data, 1);
 opt.nSamp           = size(opt.data, 2);
 opt.nCond           = size(opt.data, 3);
@@ -39,8 +39,9 @@ opt.facealpha       = wxyz_getopt(varargin, 'facealpha',    1);
 opt.edgecolor       = wxyz_getopt(varargin, 'edgecolor',    'none');
 opt.edgealpha       = wxyz_getopt(varargin, 'edgealpha',    1);
 opt.marker          = wxyz_getopt(varargin, 'marker',       'o');
-opt.markersize      = wxyz_getopt(varargin, 'markersize',   60);
+opt.markersize      = wxyz_getopt(varargin, 'markerSize',   60);
 opt.markeredgecolor = wxyz_getopt(varargin, 'markerEdgeColor',  'k');
+opt.markerfacealpha = wxyz_getopt(varargin, 'markerFaceAlpha',  0.6);
 opt.markerXJitter   = wxyz_getopt(varargin, 'markerXJitter',    0.15);
 opt.showmarker      = wxyz_getopt(varargin, 'showmarker',   false);
 opt.errBarOri       = wxyz_getopt(varargin, 'errBarOri',    'vertical');
@@ -70,7 +71,7 @@ for h = 1:numel(hbar)
     end
     if opt.showmarker
         scatter(tmpX(:), tmpY(:), opt.markersize, 'filled', opt.marker, 'MarkerEdgeColor', opt.markeredgecolor,...
-            'CData', opt.facecolor(h, :), 'XJitter', 'rand', 'XJitterWidth', opt.markerXJitter); % draw data scatter
+            'CData', opt.facecolor(h, :), 'XJitter', 'rand', 'XJitterWidth', opt.markerXJitter, 'MarkerFaceAlpha', opt.markerfacealpha); % draw data scatter
     end
     % draw errorbar
     if opt.show0err
