@@ -249,6 +249,15 @@ end
   
 for indx=1:Ndata
   if makesubplots
+    if indx==1
+      % the subplots can be drawn into a currently open figure, which might
+      % have been produced by a previous call to topoplot_common, to avoid
+      % downstream issues, clear the figure, and remove any previously
+      % created stale axis handles
+      clf;
+      guidata(gcf, []);
+    end
+
     % make multiple plots in a single figure
     nyplot = ceil(sqrt(Ndata));
     nxplot = ceil(Ndata./nyplot);
@@ -820,34 +829,39 @@ for indx=1:Ndata
     set(gcf, 'KeyPressFcn', {@key_sub, zmin, zmax})
   end
   
+  % add the cfg/data/channel information to the figure under identifier linked to this axis,
+  % this is now also needed in non-interactive mode for the post-hoc clim management
+  ident                    = ['axh' num2str(round(sum(clock.*1e6)))]; % unique identifier for this axis
+  set(gca, 'tag',ident);
+     
+  info                     = guidata(gcf);
+  info.(ident).x           = cfg.layout.pos(:, 1);
+  info.(ident).y           = cfg.layout.pos(:, 2);
+  info.(ident).label       = cfg.layout.label;
+  info.(ident).dataname    = dataname;
+  info.(ident).cfg         = cfg;
+  info.(ident).commenth    = comment_handle;
+  if exist('linecolor', 'var')
+    info.(ident).linecolor   = linecolor;
+  end
+  if ~isfield(info.(ident),'datvarargin')
+    info.(ident).datvarargin = varargin(1:Ndata); % add all datasets to figure
+  end
+
+  info.(ident).datvarargin{indx} = data; % update current dataset (e.g. baselined, channel selection, etc)
+  guidata(gcf, info);
+
   % Make the figure interactive
   if strcmp(cfg.interactive, 'yes')
-    % add the cfg/data/channel information to the figure under identifier linked to this axis
-    ident                    = ['axh' num2str(round(sum(clock.*1e6)))]; % unique identifier for this axis
-    set(gca, 'tag',ident);
-     
     % ensure that the function that is called knows about the subplot setting
     if makesubplots
       cfg.subplottopo = 1;
     else
       cfg.subplottopo = 0;
     end
-    info                     = guidata(gcf);
-    info.(ident).x           = cfg.layout.pos(:, 1);
-    info.(ident).y           = cfg.layout.pos(:, 2);
-    info.(ident).label       = cfg.layout.label;
-    info.(ident).dataname    = dataname;
-    info.(ident).cfg         = cfg;
-    info.(ident).commenth    = comment_handle;
-    if exist('linecolor', 'var')
-      info.(ident).linecolor   = linecolor;
-    end
-    if ~isfield(info.(ident),'datvarargin')
-      info.(ident).datvarargin = varargin(1:Ndata); % add all datasets to figure
-    end
-    
-    info.(ident).datvarargin{indx} = data; % update current dataset (e.g. baselined, channel selection, etc)
+    info.(ident).cfg         = cfg; % update cfg and add updated info to figure
     guidata(gcf, info);
+
     if any(strcmp(dimord, {'chan_time', 'chan_freq', 'subj_chan_time', 'rpt_chan_time', 'chan_chan_freq', 'chancmb_freq', 'rpt_chancmb_freq', 'subj_chancmb_freq'}))
       set(gcf, 'WindowButtonUpFcn',     {@ft_select_channel, 'multiple', true, 'callback', {@select_singleplotER}, 'event', 'WindowButtonUpFcn'});
       set(gcf, 'WindowButtonDownFcn',   {@ft_select_channel, 'multiple', true, 'callback', {@select_singleplotER}, 'event', 'WindowButtonDownFcn'});
@@ -862,6 +876,27 @@ for indx=1:Ndata
   end
   
 end % for numel(varargin)
+
+if Ndata>1 && ~isequal(cfg.figure, 'yes')
+  % lock the clim
+  clims = zeros(Ndata,2);
+  axh  = fieldnames(info);
+  for i=1:Ndata
+    clims(i,:) = get(info.(axh{i}).cfg.figure, 'CLim');
+  end
+  c = [min(clims(:,1)) max(clims(:,2))];
+  for i=1:Ndata
+    set(info.(axh{i}).cfg.figure, 'CLim', c);
+    if isfield(info.(axh{i}), 'commenth') && ~isempty(info.(axh{i}).commenth)
+      commentstr = get(info.(axh{i}).commenth, 'string');
+      sel        = contains(commentstr, info.(axh{i}).cfg.parameter);
+      if any(sel)
+        commentstr{sel} = sprintf('%0s=[%.3g %.3g]', info.(axh{i}).cfg.parameter, c(1), c(2));
+        set(info.(axh{i}).commenth, 'string', commentstr);
+      end
+    end
+  end
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SUBFUNCTION which is called after selecting channels in case of cfg.interactive='yes'
