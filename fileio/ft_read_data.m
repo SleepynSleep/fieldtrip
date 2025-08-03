@@ -228,7 +228,7 @@ if isempty(chanindx)
   chanindx = 1:hdr.nChans;
 end
 
-% test whether the requested channels can be accomodated
+% test whether the requested channels can be accommodated
 if min(chanindx)<1 || max(chanindx)>hdr.nChans
   ft_error('FILEIO:InvalidChanIndx', 'selected channels are not present in the data');
 end
@@ -1744,7 +1744,10 @@ elseif requestsamples && strcmp(dimord, 'chans_samples_trials')
   % determine the selection w.r.t. the data that has been read in
   begselection2 = begsample - begselection + 1;
   endselection2 = endsample - begselection + 1;
-  dat = dat(:,begselection2:endselection2);
+  if begselection2~=1 || endselection2~=size(dat,2)
+    % only do this selection if needed
+    dat = dat(:,begselection2:endselection2);
+  end
 end
 
 if inflated
