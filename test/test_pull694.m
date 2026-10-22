@@ -22,15 +22,15 @@ hdr = ft_read_header(filename{i});
 dat = ft_read_data(filename{i});
 evt = ft_read_event(filename{i});
 assert(isequal(size(dat), [4 782756]));
-assert(sum(strcmp({evt.type}','INPUT'))==11);
+assert(sum(strcmp({evt.type}','input'))==11);
 
 %%
 i = 2;
 hdr = ft_read_header(filename{i});
 dat = ft_read_data(filename{i});
 evt = ft_read_event(filename{i});
-assert(isequal(size(dat), [10 104517]));
-assert(sum(strcmp({evt.type}','INPUT'))==210);
+assert(isequal(size(dat), [11 104517]));
+assert(sum(strcmp({evt.type}','input'))==210);
 
 %%
 i = 3;
@@ -38,6 +38,6 @@ hdr = ft_read_header(filename{i});
 dat = ft_read_data(filename{i});
 evt = ft_read_event(filename{i});
 assert(isequal(size(dat), [4 1534424]));
-assert(sum(strcmp({evt.type}','INPUT'))==1975);
+assert(sum(strcmp({evt.type}','input'))==1975);
 
 

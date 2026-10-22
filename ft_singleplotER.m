@@ -215,10 +215,12 @@ else
 end
 
 % set the figure window title, if not defined by user
-if isempty(cfg.figurename) && ~isempty(dataname)
-  cfg.figurename = sprintf('%s: %s', mfilename, join_str(', ', dataname));
-else
-  cfg.figurename = sprintf('%s:', mfilename);
+if isempty(cfg.figurename)
+  if ~isempty(dataname)
+    cfg.figurename = sprintf('%s: %s', mfilename, join_str(', ', dataname));
+  else
+    cfg.figurename = sprintf('%s:', mfilename);
+  end
 end
 
 %% Section 2: data handling, this also includes converting bivariate (chan_chan and chancmb) into univariate data
@@ -516,10 +518,10 @@ if istrue(cfg.showlegend) && Ndata>1
     if ischar(linecolor)
       colorLabels{end+1} = [dataname{i} '='         linecolor(i)     ];
     elseif isnumeric(linecolor)
-      colorLabels{end+1} = [dataname{i} '=' num2str(linecolor(1, :, i)) ];
+      colorLabels{end+1} = dataname{i};
     end
   end
-  legend(colorLabels)
+  legend(colorLabels, 'interpreter', 'none')
 end
 
 % set xlim and ylim

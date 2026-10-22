@@ -494,6 +494,11 @@ switch dataformat
   case {'brainvision_eeg', 'brainvision_dat', 'brainvision_seg'}
     dat = read_brainvision_eeg(filename, hdr.orig, begsample, endsample, chanindx);
     
+  case 'brainvision_bvrd'
+    [p, f, e] = fileparts(filename);
+    [h, orig] = eeg_loadbvrf(p, [f, '.bvrh'], 'channelIndx', chanindx, 'sampleInterval', [begsample-1 endsample]); % begsample should be 0-based
+    dat = orig{1}.data;
+
   case 'bucn_nirs'
     dat = read_bucn_nirsdata(filename, hdr, begsample, endsample, chanindx);
     
@@ -761,15 +766,18 @@ switch dataformat
     dat = dat.data(chanindx,:);                         % select the desired channels
     
   case 'eyelink_asc'
-    if isfield(hdr.orig, 'dat')
-      % this is inefficient, since it keeps the complete data in memory
-      % but it does speed up subsequent read operations without the user
-      % having to care about it
+    if isfield(hdr, 'orig')
       asc = hdr.orig;
     else
-      asc = read_eyelink_asc(filename);
+      % for some reason the orig is not present, but needed
+      hdr = read_eyelink_asc(filename);
+      asc = hdr.orig;
     end
-    dat = asc.dat(chanindx,begsample:endsample);
+    if checkboundary && (asc.trialidx(begsample)~=asc.trialidx(endsample))
+      ft_error('requested data segment extends over a discontinuous trial boundary');
+    end
+    asc = read_eyelink_asc(filename, asc, begsample, endsample, chanindx);
+    dat = asc.dat;
     
   case 'fcdc_buffer'
     % read from a networked buffer for realtime analysis
