@@ -50,7 +50,7 @@ for a = 1:numel(ax)
     for k = 1:numel(ax(a).YAxis) % yyaxis: both sides
         set(ax(a).YAxis(k), 'Color', opt.FigureBlack);
         set(ax(a).YAxis(k).Label, 'Color', opt.FigureBlack);
-        set(ax(a).Color, 'none');
+        set(ax(a), 'Color', 'none');
     end
 end
 
