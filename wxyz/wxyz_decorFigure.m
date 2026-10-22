@@ -31,7 +31,7 @@ opt.LegendSize  = wxyz_getopt(varargin, 'LegendSize',   [12 12]);
 opt.FigureBlack = wxyz_getopt(varargin, 'FigureBlack',  [0 0 0]);
 
 %% Figure Font
-set(hFig, 'Color', 'w');
+set(hFig, 'Color', 'none');
 % XColor/YColor/ZColor set the axes lines and tick labels
 set(findobj(hFig, 'Type', 'Axes'), ...
     'FontName', opt.FontName,...
@@ -50,6 +50,7 @@ for a = 1:numel(ax)
     for k = 1:numel(ax(a).YAxis) % yyaxis: both sides
         set(ax(a).YAxis(k), 'Color', opt.FigureBlack);
         set(ax(a).YAxis(k).Label, 'Color', opt.FigureBlack);
+        set(ax(a).Color, 'none');
     end
 end
 
