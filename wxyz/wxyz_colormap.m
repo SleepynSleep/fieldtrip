@@ -11,8 +11,14 @@ function varargout = wxyz_colormap(varargin)
 %   cmap = wxyz_colormap('draw');     return and draw all colormaps;
 % ================================================================
 % @author: wxyz. 2024/09/29.
-wxyz_cmapdata = importdata('wxyz_cmapdata.mat');
-cmapdata = [wxyz_cmapdata.colormap(:).Colors];
+persistent wxyz_cmapdata cmapdata
+if isempty(wxyz_cmapdata)
+    dataFile = fullfile(fileparts(mfilename('fullpath')), ...
+        'wxyz_cmapdata.mat');
+    loadedData = load(dataFile, 'wxyz_cmapdata');
+    wxyz_cmapdata = loadedData.wxyz_cmapdata;
+    cmapdata = [wxyz_cmapdata.colormap(:).Colors];
+end
 
 if nargin == 0
     ctype = 'wxyz_1'; cnum = 256;
@@ -31,10 +37,12 @@ if isnumeric(ctype)
     cmap = cmapdata{ctype};
 else
     if strcmpi('all', ctype)
-        varargout{1} = cmapdata;
+        varargout{1} = cellfun(@(cmap) double(cmap)./255, cmapdata, ...
+            'UniformOutput', false);
         return;
     elseif strcmpi('draw', ctype)
-        varargout{1} = cmapdata;
+        varargout{1} = cellfun(@(cmap) double(cmap)./255, cmapdata, ...
+            'UniformOutput', false);
         for i = 1:numel(wxyz_cmapdata.colormap)
             if numel(wxyz_cmapdata.colormap(i).Names) <= 100
                 fig = drawAllColorMap(wxyz_cmapdata.colormap(i), wxyz_cmapdata.fullNames);
@@ -60,6 +68,7 @@ else
         cmap = cmapdata{cpos};
     end
 end
+cmap = double(cmap)./255;
 if cnum ~= 256
     ci = 1:256;
     cq = linspace(1, 256, cnum);
@@ -87,7 +96,7 @@ function fig = drawAllColorMap(cmapstruct, cmapNames)
     end
     for i = 1:numCmaps
         nexttile;
-        cmap=cmapList{i};
+        cmap=double(cmapList{i})./255;
         imagesc(1:256);
         colormap(gca, cmap);
         set(gca, 'ytick', [], 'xtick', []);

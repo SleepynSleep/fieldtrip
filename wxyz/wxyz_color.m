@@ -11,7 +11,12 @@ function varargout = wxyz_color(varargin)
 %   c = wxyz_color('draw');     return and draw all colorlists;
 % ================================================================
 % @author: wxyz. 2024/09/29.
-wxyz_cdata = importdata('wxyz_cdata.mat');
+persistent wxyz_cdata
+if isempty(wxyz_cdata)
+    dataFile = fullfile(fileparts(mfilename('fullpath')), 'wxyz_cdata.mat');
+    loadedData = load(dataFile, 'wxyz_cdata');
+    wxyz_cdata = loadedData.wxyz_cdata;
+end
 
 if nargin == 0 % default is 1st
     ctype = 1; cnum = [];
@@ -19,10 +24,12 @@ elseif nargin == 1
     if isnumeric(varargin{1})
         ctype = varargin{1}; cnum = [];
     elseif strcmpi('all', varargin{1})
-        varargout{1} = wxyz_cdata.Color;
+        varargout{1} = cellfun(@double, wxyz_cdata.Color, ...
+            'UniformOutput', false);
         return;
     elseif strcmpi('draw', varargin{1})
-        varargout{1} = wxyz_cdata.Color;
+        varargout{1} = cellfun(@double, wxyz_cdata.Color, ...
+            'UniformOutput', false);
         for i = 1:numel(wxyz_cdata.Name)
             clist = wxyz_cdata.Color(wxyz_cdata.PackageInd == i);
             cNames = wxyz_cdata.Key(wxyz_cdata.PackageInd == i);
@@ -41,7 +48,7 @@ elseif nargin == 2
     cnum = varargin{2};
 end
 if ~isempty(ctype)
-    varargout{1} = wxyz_cdata.Color{ctype}./255;
+    varargout{1} = double(wxyz_cdata.Color{ctype})./255;
     N = size(varargout{1}, 1);
     if isempty(cnum) % No selection of given color
     else % Selection of given color
@@ -59,7 +66,7 @@ function fig = drawAllColor(cstruct, cNames, allNames)
     set(hTiled, 'TileIndexing', 'columnmajor');
     for i = 1:numCs
         nexttile;
-        c=cstruct{i}/255;
+        c=double(cstruct{i})/255;
         imagesc(1:256);
         colormap(gca, c);
         set(gca, 'ytick', [], 'xtick', []);
